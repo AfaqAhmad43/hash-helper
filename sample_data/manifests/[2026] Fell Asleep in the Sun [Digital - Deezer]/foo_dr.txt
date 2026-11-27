@@ -1,0 +1,33 @@
+foobar2000 v2.25.8 / DR Meter v1.0.8
+log date: 2026-10-11 21:16:03
+
+--------------------------------------------------------------------------------
+Analyzed: After / Fell Asleep in the Sun
+--------------------------------------------------------------------------------
+
+DR         Peak           RMS       Duration Track
+--------------------------------------------------------------------------------
+DR5       -0.11 dBFS    -7.67 dBFS      3:14 01-Take Me to Sunrise
+DR5       -0.10 dBFS    -7.06 dBFS      3:07 02-Promise (When You Go)
+DR4       -0.10 dBFS    -6.14 dBFS      3:18 03-Metal
+DR5       -0.10 dBFS    -7.05 dBFS      3:16 04-Breathe Your Air
+DR4       -0.10 dBFS    -6.32 dBFS      3:01 05-Fitfully
+DR6       -0.10 dBFS    -7.95 dBFS      2:22 06-Do or Die
+DR5       -0.10 dBFS    -6.51 dBFS      3:43 07-Blow Out the Candle
+DR11      -2.08 dBFS   -18.43 dBFS      1:34 08-Secret Love Song
+DR3       -1.15 dBFS    -5.51 dBFS      3:21 09-Open Water
+DR5       -0.10 dBFS    -6.56 dBFS      3:09 10-Blind
+DR5       -0.10 dBFS    -6.93 dBFS      3:38 11-Snowburn
+DR5       -0.10 dBFS    -7.00 dBFS      3:56 12-If You Don't Know by Now
+DR4       -0.60 dBFS    -6.34 dBFS      3:52 13-Fell Asleep in the Sun
+--------------------------------------------------------------------------------
+
+Number of tracks:  13
+Official DR value: DR5
+
+Samplerate:        44100 Hz
+Channels:          2
+Bits per sample:   16
+Bitrate:           960 kbps
+Codec:             FLAC
+================================================================================

@@ -1,0 +1,21 @@
+# Project Roadmap
+
+- [x] **Phase 0 — Project Preparation**
+  - [x] Git repository & remote configuration
+  - [x] Base directory skeleton & .gitignore
+  - [x] Core documentation setup
+  - [x] Sample RapidCRC manifests & test library populated
+- [x] **Phase 1 — RapidCRC Format Analysis**
+  - [x] Examine existing album checksum files
+  - [x] Examine master checksum file
+  - [x] Determine hash format, encoding, delimiters, line endings, and paths
+  - [x] Document findings in TECHNICAL_NOTES.md
+- [ ] **Phase 2 — Database Design**
+- [ ] **Phase 3 — Manifest Importer**
+- [ ] **Phase 4 — Incremental Album Registration**
+- [ ] **Phase 5 — Master Manifest Generation**
+- [ ] **Phase 6 — Verification Engine**
+- [ ] **Phase 7 — Library Scanner**
+- [ ] **Phase 8 — GUI (PySide6)**
+- [ ] **Phase 9 — Backup and Recovery**
+- [ ] **Phase 10 — Packaging and Release**

@@ -1,0 +1,26 @@
+foobar2000 v2.25.8 / DR Meter v1.0.7
+log date: 2026-07-31 21:43:46
+
+--------------------------------------------------------------------------------
+Analyzed: After / After EP 2
+--------------------------------------------------------------------------------
+
+DR         Peak           RMS       Duration Track
+--------------------------------------------------------------------------------
+DR5       -0.14 dBFS    -6.40 dBFS      3:22 01-Deep Diving
+DR5       -0.11 dBFS    -7.03 dBFS      3:28 02-The Field
+DR5       -0.11 dBFS    -7.03 dBFS      3:19 03-Where we are now
+DR5       -0.11 dBFS    -6.97 dBFS      3:26 04-Baroque
+DR5       -0.11 dBFS    -7.28 dBFS      3:47 05-Outbound
+DR5       -0.11 dBFS    -6.78 dBFS      3:17 06-Close your eyes
+--------------------------------------------------------------------------------
+
+Number of tracks:  6
+Official DR value: DR5
+
+Samplerate:        44100 Hz
+Channels:          2
+Bits per sample:   16
+Bitrate:           974 kbps
+Codec:             FLAC
+================================================================================

@@ -1,0 +1,26 @@
+[CUETools log; Date: 31/07/2026 21:35:59; Version: 2.2.6]
+[CTDB TOCID: 8SQlNT12muVf4aSQ2Z1mKozro5s-] found.
+Track | CTDB Status
+  1   | (8/8) Accurately ripped
+  2   | (8/8) Accurately ripped
+  3   | (8/8) Accurately ripped
+  4   | (8/8) Accurately ripped
+  5   | (8/8) Accurately ripped
+  6   | (8/8) Accurately ripped
+[AccurateRip ID: 0004f119-001a6824-3004d606] found.
+Track   [  CRC   |   V2   ] Status
+ 01     [0c4b30e2|15344b29] (0+1/1) Accurately ripped
+ 02     [d60f16c6|3768ec38] (0+1/1) Accurately ripped
+ 03     [b622950c|16422bd2] (0+1/1) Accurately ripped
+ 04     [42cabd9c|08da1a02] (0+1/1) Accurately ripped
+ 05     [5f043db5|08435005] (0+1/1) Accurately ripped
+ 06     [6d9ba09f|efcfb92b] (0+1/1) Accurately ripped
+
+Track Peak [ CRC32  ] [W/O NULL] [  LOG   ]
+ --   98.7 [DF1B8245] [97EC8DDE]           
+ 01   98.4 [EBCD0952] [799F7E1D]   CRC32   
+ 02   98.6 [9F26CA3B] [E51CFB22]   CRC32   
+ 03   98.6 [BF679FFE] [16C53E7F]   CRC32   
+ 04   98.6 [E84D943A] [6A5085DE]   CRC32   
+ 05   98.6 [51BC5A97] [67312799]   CRC32   
+ 06   98.7 [73029C74] [16B47FB9]   CRC32   

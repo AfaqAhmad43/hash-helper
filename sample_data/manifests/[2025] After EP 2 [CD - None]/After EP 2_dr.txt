@@ -1,0 +1,14 @@
+
+Folder Path:   /Users/admin/Music/Rips/After - After EP 2 (2025) [CD FLAC]
+
+            File Name | Format | Bits Used |    SR | Max. TPL | LUFSi | DR (PMF) | 
+
+     01 - Deep Diving |  .flac |        16 | 44.1k |    -0.10 | -7.31 |        5 | 
+       02 - The Field |  .flac |        16 | 44.1k |    -0.10 | -7.78 |        5 | 
+03 - Where we are now |  .flac |        16 | 44.1k |    -0.10 | -7.92 |        5 | 
+         04 - Baroque |  .flac |        16 | 44.1k |    -0.10 | -7.15 |        5 | 
+        05 - Outbound |  .flac |        16 | 44.1k |    -0.10 | -7.69 |        5 | 
+ 06 - Close your eyes |  .flac |        16 | 44.1k |    -0.10 | -7.55 |        5 | 
+
+Number of EP/Album Files: 6
+Official EP/Album DR: 5
