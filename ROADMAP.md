@@ -27,7 +27,11 @@
   - [x] Implement incremental album registration preview (`preview_album_registration`)
   - [x] Implement registration execution without rehashing existing music (`register_album`)
   - [x] Automated test suite in `tests/test_registration.py` (4/4 passed; 13/13 total passed)
-- [ ] **Phase 5 — Master Manifest Generation**
+- [x] **Phase 5 — Master Manifest Generation**
+  - [x] Implement `generate_master_manifest` export directly from SQLite database
+  - [x] Support RapidCRC compatibility (CRLF, UTF-8 without BOM, ` *` binary mode, Windows `\` separators)
+  - [x] Prevent silent overwrites and validate output
+  - [x] Automated test suite in `tests/test_exporter.py` (3/3 passed; 16/16 total passed)
 - [ ] **Phase 6 — Verification Engine**
 - [ ] **Phase 7 — Library Scanner**
 - [ ] **Phase 8 — GUI (PySide6)**

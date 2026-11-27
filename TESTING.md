@@ -24,3 +24,8 @@
     - `test_preview_album_registration`: PASSED
     - `test_register_album_incremental`: PASSED
     - `test_register_album_missing_manifest`: PASSED
+- **Phase 5 — Master Manifest Generation:**
+  - `tests/test_exporter.py`: 3 passed in 0.23s (Python 3.13.7, pytest 9.2.0)
+    - `test_generate_master_manifest_empty`: PASSED
+    - `test_generate_master_manifest_from_registered_albums`: PASSED
+    - `test_manifest_export_no_silent_overwrite`: PASSED
