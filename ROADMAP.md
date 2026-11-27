@@ -16,7 +16,12 @@
   - [x] Implement schema versioning
   - [x] Implement online transaction-safe database backup
   - [x] Automated test suite in `tests/test_database.py` (5/5 passed)
-- [ ] **Phase 3 — Manifest Importer**
+- [x] **Phase 3 — Manifest Importer**
+  - [x] Implement RapidCRC manifest parser (`parse_manifest_file`)
+  - [x] Implement file type classification (`audio`, `companion`, `manifest`)
+  - [x] Implement import preview with duplicate & conflict detection (`preview_import`)
+  - [x] Implement transactional commit with safety checks against overwriting (`commit_import`)
+  - [x] Automated test suite in `tests/test_importer.py` (4/4 passed; 9/9 total passed)
 - [ ] **Phase 4 — Incremental Album Registration**
 - [ ] **Phase 5 — Master Manifest Generation**
 - [ ] **Phase 6 — Verification Engine**

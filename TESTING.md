@@ -12,3 +12,9 @@
     - `test_library_and_album_insertion`: PASSED
     - `test_unique_constraint_on_files`: PASSED
     - `test_backup_db`: PASSED
+- **Phase 3 — Manifest Importer:**
+  - `tests/test_importer.py`: 4 passed in 0.18s (Python 3.13.7, pytest 9.2.0)
+    - `test_classify_file_type`: PASSED
+    - `test_parse_sample_album_manifest`: PASSED
+    - `test_preview_and_commit_import`: PASSED
+    - `test_conflict_detection_and_safety`: PASSED

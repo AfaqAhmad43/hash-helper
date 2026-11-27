@@ -1,22 +1,20 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Phase 2 Complete -> Ready for Phase 3 (Manifest Importer)
-- **Active Task:** Database layer implemented, verified with tests, and documented.
+- **Current Phase:** Phase 3 Complete -> Transitioning to Phase 4 (Incremental Album Registration)
+- **Active Task:** Manifest Importer implemented, tested against actual sample manifests, and committed to remote.
 
 ## Completed Work
-- Committed Phase 0 & Phase 1 baseline to Git (`f61522d`).
-- Configured local Python 3.13 venv with `pytest`.
-- Designed and implemented SQLite database layer in `src/database.py`:
-  - Enforced foreign keys (`PRAGMA foreign_keys = ON`).
-  - Enabled WAL journal mode (`PRAGMA journal_mode = WAL`).
-  - Schema versioning (`schema_version` table).
-  - Entities: `libraries`, `albums`, `file_records` (supports classification of audio vs. companion files), `import_history`, `verification_history`, `audit_log`.
-  - Added indexes on `sha256` and `rel_path` for rapid querying.
-  - Implemented transaction-safe backup utility `backup_db`.
-- Built test suite in `tests/test_database.py` covering schema init, constraints, cascading, unique constraints, and backup/restore.
-- Verified test suite: 5/5 tests passing.
+- Pushed Phase 0, 1, and 2 commits to GitHub repository `origin/master`.
+- Implemented `src/importer.py`:
+  - RapidCRC format parser handling ` *` binary mode delimiters and CRLF line endings.
+  - File classification into `audio`, `companion`, and `manifest` types.
+  - Non-destructive `preview_import` detecting new records, identical duplicates, conflicts, and malformed lines.
+  - Transactional `commit_import` writing to `albums`, `file_records`, `import_history`, and `audit_log`.
+  - Enforced project constraint: baseline records cannot be silently overwritten (raises error if conflicts exist without explicit approval).
+- Added comprehensive unit tests in `tests/test_importer.py`.
+- Ran full test suite: **9/9 tests passed**.
 
 ## Outstanding / Next Steps
-1. Commit Phase 2 database design to Git.
-2. Begin Phase 3: Manifest Importer (parser for RapidCRC manifests, duplicate/conflict detection, and preview logic).
+1. Commit Phase 3 implementation to Git and push to remote.
+2. Begin Phase 4: Incremental Album Registration (workflow for scanning/registering single or multiple new albums without full library hashing).
