@@ -47,6 +47,8 @@ class ImportItem:
 @dataclass
 class ImportPreview:
     source_manifest: str
+    manifest_mtime: float
+    manifest_size: int
     total_parsed: int
     new_records: List[ImportItem]
     duplicate_records: List[ImportItem]
@@ -172,8 +174,12 @@ def preview_import(
                 )
             )
 
+    m_stat = manifest_path.stat()
+
     return ImportPreview(
-        source_manifest=str(manifest_path),
+        source_manifest=str(manifest_path.resolve()),
+        manifest_mtime=m_stat.st_mtime,
+        manifest_size=m_stat.st_size,
         total_parsed=len(records),
         new_records=new_records,
         duplicate_records=duplicate_records,
@@ -190,9 +196,22 @@ def commit_import(
 ) -> Dict[str, int]:
     """Commits new records from an ImportPreview into the database in a single transaction.
 
-    Safety: Existing records and conflicts are NOT overwritten silently.
-    If conflicts exist and ignore_conflicts is False, raises a ValueError.
+    Safety:
+    - Existing records and conflicts are NOT overwritten silently.
+    - If conflicts exist and ignore_conflicts is False, raises a ValueError.
+    - Verifies manifest has not been modified or deleted since preview generation (stale check).
     """
+    manifest_file = Path(preview.source_manifest)
+    if not manifest_file.exists():
+        raise FileNotFoundError(f"Source manifest was deleted or moved: {preview.source_manifest}")
+
+    current_stat = manifest_file.stat()
+    if current_stat.st_mtime != preview.manifest_mtime or current_stat.st_size != preview.manifest_size:
+        raise ValueError(
+            "Source manifest was modified on disk after preview was generated. "
+            "Please regenerate the preview before committing."
+        )
+
     if preview.conflict_records and not ignore_conflicts:
         raise ValueError(
             f"Cannot commit import: {len(preview.conflict_records)} conflicts detected. "

@@ -1,4 +1,4 @@
-"""Unit tests for master manifest generation (Phase 5)."""
+"""Unit tests for master manifest generation (Phase 5 & Task 4)."""
 
 import pytest
 from pathlib import Path
@@ -30,7 +30,6 @@ def test_generate_master_manifest_from_registered_albums(tmp_path):
         cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("TestLib", str(sample_dir)))
         lib_id = cur.lastrowid
 
-    # Register sample albums
     alb1 = sample_dir / "[2025] After EP 2 [CD - None]"
     alb2 = sample_dir / "[2026] Fell Asleep in the Sun [Digital - Deezer]"
 
@@ -38,7 +37,6 @@ def test_generate_master_manifest_from_registered_albums(tmp_path):
     res2 = register_album(conn, preview_album_registration(conn, lib_id, alb2))
     assert res1.success and res2.success
 
-    # Export master manifest
     out_file = tmp_path / "exported_master.sha256"
     report = generate_master_manifest(conn, lib_id, out_file, library_prefix="Organized")
 
@@ -46,12 +44,10 @@ def test_generate_master_manifest_from_registered_albums(tmp_path):
     expected_count = res1.imported_count + res2.imported_count
     assert report.records_exported == expected_count
 
-    # Verify exported file format
     content_bytes = out_file.read_bytes()
-    assert b"\r\n" in content_bytes  # CRLF line endings
-    assert not content_bytes.startswith(b"\xef\xbb\xbf")  # No UTF-8 BOM
+    assert b"\r\n" in content_bytes
+    assert not content_bytes.startswith(b"\xef\xbb\xbf")
 
-    # Verify exported manifest parses back cleanly with importer parser
     records, malformed = parse_manifest_file(out_file)
     assert len(malformed) == 0
     assert len(records) == expected_count
@@ -69,12 +65,36 @@ def test_manifest_export_no_silent_overwrite(tmp_path):
     out_file = tmp_path / "existing.sha256"
     out_file.write_text("existing content\n", encoding="utf-8")
 
-    # Attempting to export without overwrite should fail safely
     report = generate_master_manifest(conn, lib_id, out_file, overwrite=False)
     assert report.success is False
     assert "already exists" in report.message
     assert out_file.read_text(encoding="utf-8") == "existing content\n"
 
-    # Export with overwrite=True succeeds
     report_overwrite = generate_master_manifest(conn, lib_id, out_file, overwrite=True)
     assert report_overwrite.success is True
+
+
+def test_manifest_export_detects_malformed_and_duplicate_records(tmp_path):
+    conn = init_db(":memory:")
+    with conn:
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("Lib", str(tmp_path)))
+        lib_id = cur.lastrowid
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib_id, "AlbumA"))
+        alb_a = cur.lastrowid
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib_id, "AlbumB"))
+        alb_b = cur.lastrowid
+
+        # Valid record
+        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                     (alb_a, "track1.flac", "a" * 64))
+        # Malformed record (hash length < 64)
+        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                     (alb_a, "track2.flac", "bad_hash"))
+
+    out_file = tmp_path / "validated.sha256"
+    report = generate_master_manifest(conn, lib_id, out_file)
+    assert report.success is True
+    assert report.records_exported == 1
+    assert report.malformed_records == 1
+    assert len(report.errors) == 1
+    assert "Malformed SHA-256" in report.errors[0]

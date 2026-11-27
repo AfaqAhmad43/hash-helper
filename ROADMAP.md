@@ -77,7 +77,12 @@
   - [x] Mid-file in-chunk cancellation support (`calculate_file_sha256`)
   - [x] Mutual-exclusion status classification including `invalid_path`
   - [x] Verified via test suite (`tests/test_verifier.py`, 29/29 total tests passed)
-- [ ] **Task 4 — Export and Import Safety Repairs (E-01 through E-04)**
+- [x] **Task 4 — Export and Import Safety Repairs (E-01 through E-04)**
+  - [x] Remove automatic `overwrite=True` bypass; prompt user with confirmation dialogs
+  - [x] Path resolution via `Path.parts` containment instead of raw string prefixes
+  - [x] Export validation detecting malformed hashes, duplicates, and reporting errors
+  - [x] Stale preview protection in `commit_import` checking file existence and mtime
+  - [x] Verified via test suite (`tests/test_exporter.py` & `test_importer.py`, 31/31 total passed)
 - [ ] **Task 5 — Database and Backup WAL Repairs (B-01 through B-03)**
 - [ ] **Task 6 — Scanner Review & Containment**
 - [ ] **Task 7 — GUI Redesign Proposal & Wireframes**

@@ -446,7 +446,22 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", "Please select an export destination.")
             return
 
-        report = generate_master_manifest(self.conn, self.active_library_id, path, overwrite=True)
+        target_file = Path(path)
+        overwrite_approved = False
+        if target_file.exists():
+            reply = QMessageBox.question(
+                self,
+                "Confirm Overwrite",
+                f"Destination file already exists:\n{target_file}\n\nDo you want to overwrite it?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if reply != QMessageBox.Yes:
+                self.lbl_export_result.setText("Export cancelled: overwrite declined.")
+                return
+            overwrite_approved = True
+
+        report = generate_master_manifest(self.conn, self.active_library_id, path, overwrite=overwrite_approved)
         if report.success:
             QMessageBox.information(self, "Export Complete", report.message)
             self.lbl_export_result.setText(report.message)

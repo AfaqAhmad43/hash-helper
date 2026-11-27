@@ -6,7 +6,7 @@ records without reading or re-hashing physical audio files.
 
 import os
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Set, Union
 
@@ -19,6 +19,7 @@ class ExportReport:
     duplicates_detected: int
     malformed_records: int
     message: str
+    errors: List[str] = field(default_factory=list)
 
 
 def generate_master_manifest(
@@ -31,14 +32,16 @@ def generate_master_manifest(
 ) -> ExportReport:
     """Exports a consolidated SHA-256 master manifest from SQLite.
 
-    Format conforms to RapidCRC specifications:
+    Format conforms strictly to RapidCRC specifications:
         <sha256> *<relative_path>
     Line endings: CRLF (\r\n)
     Character encoding: UTF-8 without BOM
 
     Safety rules:
     - Never reads or hashes physical audio files.
-    - Fails if output_path exists and overwrite is False.
+    - Strictly fails if output_path exists and overwrite is False.
+    - Validates paths using proper Path objects instead of string slicing.
+    - Reports malformed records and duplicate paths without silent data corruption.
     """
     target = Path(output_path).resolve()
 
@@ -50,6 +53,7 @@ def generate_master_manifest(
             duplicates_detected=0,
             malformed_records=0,
             message=f"Export destination already exists and overwrite=False: {target}",
+            errors=["Destination file already exists."],
         )
 
     # Query records from database
@@ -70,6 +74,7 @@ def generate_master_manifest(
 
     lines: List[str] = []
     seen_paths: Set[str] = set()
+    errors: List[str] = []
     duplicates_detected = 0
     malformed_records = 0
 
@@ -78,31 +83,37 @@ def generate_master_manifest(
         f_rel = row["rel_path"]
         sha = row["sha256"].lower().strip()
 
-        if len(sha) != 64:
+        # Validate hash format (64-character lowercase hex)
+        if len(sha) != 64 or not all(c in "0123456789abcdef" for c in sha):
             malformed_records += 1
+            errors.append(f"Malformed SHA-256 for record '{alb_rel}/{f_rel}': '{sha}'")
             continue
 
-        # Format relative path
-        if alb_rel == "." or alb_rel == "":
-            full_rel = f_rel
-        elif f_rel.startswith(alb_rel):
-            full_rel = f_rel
+        # Deterministic path resolution using Path objects
+        alb_path_obj = Path(alb_rel) if alb_rel not in (".", "") else Path("")
+        f_path_obj = Path(f_rel)
+
+        # Build clean relative path
+        if alb_path_obj == Path("") or f_path_obj.parts[: len(alb_path_obj.parts)] == alb_path_obj.parts:
+            combined_rel = f_path_obj
         else:
-            full_rel = os.path.join(alb_rel, f_rel)
+            combined_rel = alb_path_obj / f_path_obj
 
-        # Apply optional library prefix (e.g., 'Organized' folder in master manifest)
+        # Apply optional library prefix
         if library_prefix:
-            full_rel = os.path.join(library_prefix, full_rel)
+            combined_rel = Path(library_prefix) / combined_rel
 
-        # Normalize to Windows backslashes for RapidCRC compatibility
-        norm_path = full_rel.replace("/", "\\")
+        # Format with Windows backslashes for RapidCRC
+        norm_path = str(combined_rel).replace("/", "\\")
 
         # Duplicate check on exported paths
-        if norm_path.lower() in seen_paths:
+        norm_key = norm_path.lower()
+        if norm_key in seen_paths:
             duplicates_detected += 1
+            errors.append(f"Duplicate path in export: '{norm_path}'")
             continue
 
-        seen_paths.add(norm_path.lower())
+        seen_paths.add(norm_key)
         lines.append(f"{sha} *{norm_path}")
 
     # Ensure parent directory exists
@@ -126,11 +137,16 @@ def generate_master_manifest(
             ),
         )
 
+    msg = f"Successfully exported {len(lines)} records to {target.name}."
+    if duplicates_detected > 0 or malformed_records > 0:
+        msg += f" Note: {duplicates_detected} duplicates skipped, {malformed_records} malformed records omitted."
+
     return ExportReport(
         success=True,
         target_path=target,
         records_exported=len(lines),
         duplicates_detected=duplicates_detected,
         malformed_records=malformed_records,
-        message=f"Successfully exported {len(lines)} records to {target.name}.",
+        message=msg,
+        errors=errors,
     )

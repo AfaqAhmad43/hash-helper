@@ -1,21 +1,18 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Repair & Redesign — Task 3 Complete -> Ready for Task 4 (Export & Import Safety)
-- **Active Task:** Verification Engine repairs (V-01 through V-07) implemented and verified with tests.
+- **Current Phase:** Repair & Redesign — Task 4 Complete -> Ready for Task 5 (Database & Backup WAL Repairs)
+- **Active Task:** Export and Import safety repairs (E-01 through E-04) completed and verified.
 
 ## Completed Work in This Task
-- Resolved **V-01 (Thread Safety):** `VerifyWorker` now accepts `db_path` and establishes its own independent SQLite connection with WAL mode and foreign keys, closed deterministically in `finally`.
-- Resolved **V-02 (Worker Lifecycle):** Implemented `error_signal(str)` on `VerifyWorker` with full exception catching and GUI recovery dialogs.
-- Resolved **V-03 & V-04 (Path Containment & Traversal):** Enforced `candidate_path.relative_to(library_root)` check before reading files. Directory traversal attempts and absolute path escapes are flagged as `invalid_path`.
-- Resolved **V-05 (Scope Validation):** Implemented `validate_scope_and_albums()`. Raises `ValueError` on empty album lists or foreign library IDs.
-- Resolved **V-06 (Cancellation):** `calculate_file_sha256()` now supports mid-file chunk cancellation via `cancel_check`.
-- Resolved **V-07 (Reporting):** Added `files_invalid_path` tracking in `VerificationSummary` and `FileVerificationResult`.
-- Updated test suite: **29/29 automated tests passing in 0.98s**.
+- Resolved **E-01 (Export Overwrite Prompt):** `MainWindow._run_export()` checks if target path exists and presents a `QMessageBox.question()` confirmation dialog. If declined, export halts safely without modifying disk.
+- Resolved **E-02 & E-03 (Export Path Resolution & Validation):** Refactored `generate_master_manifest()` in `src/exporter.py` to use `Path` object hierarchy. Enforced strict 64-char lowercase hexadecimal hash validation; malformed records and duplicate paths are cataloged into an error ledger instead of silently corrupted.
+- Resolved **E-04 (Stale Import Preview Guard):** Added `manifest_mtime` and `manifest_size` tracking in `ImportPreview`. `commit_import()` verifies the manifest exists and has not been modified since the preview was generated.
+- Updated test suite: **31/31 automated tests passing in 0.92s**.
 
 ## Outstanding / Next Steps
-1. Commit Task 3 repairs to Git and push to remote.
-2. Begin Task 4: Export & Import Safety Repairs (E-01 through E-04).
+1. Commit Task 4 repairs to Git and push to remote.
+2. Begin Task 5: Database and Backup WAL Repairs (B-01 through B-03).
 
 ## Summary of All Implemented Phases
 - **Phase 0:** Workspace, Git repository, and documentation setup.

@@ -99,3 +99,25 @@ def test_conflict_detection_and_safety():
     finally:
         if tmp_manifest.exists():
             tmp_manifest.unlink()
+
+
+def test_commit_import_rejects_stale_preview(tmp_path):
+    conn = init_db(":memory:")
+    with conn:
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("Lib", str(tmp_path)))
+        lib_id = cur.lastrowid
+
+    manifest_file = tmp_path / "album.sha256"
+    manifest_file.write_text(f"{'a'*64} *01.flac\n", encoding="utf-8")
+
+    # Generate preview
+    preview = preview_import(conn, lib_id, manifest_file, album_rel_path="Album1")
+    assert preview.total_parsed == 1
+
+    # Simulate manifest alteration after preview was generated
+    manifest_file.write_text(f"{'b'*64} *01.flac\n{'c'*64} *02.flac\n", encoding="utf-8")
+
+    # Commit must reject stale preview
+    with pytest.raises(ValueError, match="Source manifest was modified on disk"):
+        commit_import(conn, lib_id, preview)
+
