@@ -39,3 +39,7 @@
     - `test_scan_library_empty`: PASSED
     - `test_scan_library_discrepancies`: PASSED
     - `test_scan_library_cancellation`: PASSED
+- **Phase 8 — GUI (PySide6):**
+  - `tests/test_gui.py`: 2 passed in 1.33s (Python 3.13.7, pytest 9.2.0)
+    - `test_main_window_initialization`: PASSED
+    - `test_main_window_dashboard_refresh`: PASSED

@@ -46,6 +46,11 @@
   - [x] Detection of potential new albums with manifest discovery
   - [x] Progress reporting and cancellation support
   - [x] Automated test suite in `tests/test_scanner.py` (3/3 passed; 22/22 total passed)
-- [ ] **Phase 8 — GUI (PySide6)**
+- [x] **Phase 8 — GUI (PySide6)**
+  - [x] PySide6 desktop interface with clean tab layout (`src/gui/main_window.py`)
+  - [x] Screens: Dashboard, Albums, Import, Scanner, Verification, Export, and History
+  - [x] Threaded background verification worker with progress bar and cancellation
+  - [x] Application launcher `main.py`
+  - [x] Automated GUI integration tests in `tests/test_gui.py` (2/2 passed; 24/24 total passed)
 - [ ] **Phase 9 — Backup and Recovery**
 - [ ] **Phase 10 — Packaging and Release**
