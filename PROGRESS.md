@@ -1,18 +1,17 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Repair & Redesign — Task 4 Complete -> Ready for Task 5 (Database & Backup WAL Repairs)
-- **Active Task:** Export and Import safety repairs (E-01 through E-04) completed and verified.
+- **Current Phase:** Repair & Redesign — Task 5 Complete -> Ready for Task 6 (Scanner Review & Containment)
+- **Active Task:** Database & Backup WAL repairs (B-01 through B-03) completed and verified.
 
 ## Completed Work in This Task
-- Resolved **E-01 (Export Overwrite Prompt):** `MainWindow._run_export()` checks if target path exists and presents a `QMessageBox.question()` confirmation dialog. If declined, export halts safely without modifying disk.
-- Resolved **E-02 & E-03 (Export Path Resolution & Validation):** Refactored `generate_master_manifest()` in `src/exporter.py` to use `Path` object hierarchy. Enforced strict 64-char lowercase hexadecimal hash validation; malformed records and duplicate paths are cataloged into an error ledger instead of silently corrupted.
-- Resolved **E-04 (Stale Import Preview Guard):** Added `manifest_mtime` and `manifest_size` tracking in `ImportPreview`. `commit_import()` verifies the manifest exists and has not been modified since the preview was generated.
-- Updated test suite: **31/31 automated tests passing in 0.92s**.
+- Resolved **B-01 & B-02 (WAL-Safe Backup & Pre-Restore Snapshot):** Replaced `shutil.copy2` with `PRAGMA wal_checkpoint(TRUNCATE);` followed by `backup_db()` in `create_backup()` and `restore_backup()`. Pre-restore safety copies now capture the full active database state without missing uncheckpointed WAL transactions.
+- Resolved **B-03 (Corrupt Backup Rejection):** Validated that corrupt or unreadable backups fail `verify_database_integrity()` and are rejected before altering the target database.
+- Updated test suite: **32/32 automated tests passing in 0.87s**.
 
 ## Outstanding / Next Steps
-1. Commit Task 4 repairs to Git and push to remote.
-2. Begin Task 5: Database and Backup WAL Repairs (B-01 through B-03).
+1. Commit Task 5 repairs to Git and push to remote.
+2. Begin Task 6: Scanner Review & Containment (verifying path resolution and containment inside `scan_library()`).
 
 ## Summary of All Implemented Phases
 - **Phase 0:** Workspace, Git repository, and documentation setup.

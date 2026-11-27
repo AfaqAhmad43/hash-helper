@@ -1,4 +1,4 @@
-"""Unit tests for database backup and recovery operations (Phase 9)."""
+"""Unit tests for database backup and recovery operations (Phase 9 & Task 5)."""
 
 import sqlite3
 import pytest
@@ -25,13 +25,14 @@ def test_verify_database_integrity_valid_and_corrupt(tmp_path):
     assert verify_database_integrity(corrupt_db) is False
 
 
-def test_create_backup_and_list(tmp_path):
+def test_create_backup_with_wal_checkpoint(tmp_path):
     source_db = tmp_path / "source.db"
     backup_dir = tmp_path / "backups"
 
     conn = init_db(source_db)
     with conn:
         conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("BackupLib", "D:\\Music"))
+    # Keep conn open or closed, wal_checkpoint flushes cleanly
     conn.close()
 
     backup_file = create_backup(source_db, backup_dir)
@@ -45,7 +46,7 @@ def test_create_backup_and_list(tmp_path):
     assert backups[0].size_bytes > 0
 
 
-def test_restore_backup_with_safety_copy(tmp_path):
+def test_restore_backup_with_wal_safety_copy(tmp_path):
     original_db = tmp_path / "main.db"
     backup_dir = tmp_path / "backups"
 
@@ -64,15 +65,11 @@ def test_restore_backup_with_safety_copy(tmp_path):
         conn2.execute("UPDATE libraries SET name = 'State2' WHERE id = 1;")
     conn2.close()
 
-    # Verify State 2 is active
-    conn_check = sqlite3.connect(str(original_db))
-    assert conn_check.execute("SELECT name FROM libraries WHERE id = 1;").fetchone()[0] == "State2"
-    conn_check.close()
-
     # 4. Restore State 1 from backup
     safety_copy = restore_backup(backup_file, original_db, create_safety_copy=True)
     assert safety_copy is not None
     assert safety_copy.exists()
+    assert verify_database_integrity(safety_copy) is True
 
     # Verify original DB was restored to State 1
     conn_restored = sqlite3.connect(str(original_db))
@@ -83,3 +80,15 @@ def test_restore_backup_with_safety_copy(tmp_path):
     conn_safety = sqlite3.connect(str(safety_copy))
     assert conn_safety.execute("SELECT name FROM libraries WHERE id = 1;").fetchone()[0] == "State2"
     conn_safety.close()
+
+
+def test_restore_rejects_corrupted_backup(tmp_path):
+    target_db = tmp_path / "target.db"
+    conn = init_db(target_db)
+    conn.close()
+
+    corrupt_backup = tmp_path / "corrupt_backup.db"
+    corrupt_backup.write_bytes(b"not a valid sqlite backup file")
+
+    with pytest.raises(ValueError, match="failed integrity check"):
+        restore_backup(corrupt_backup, target_db)

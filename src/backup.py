@@ -1,12 +1,11 @@
 """Backup and recovery management module for Music Library Integrity Manager.
 
 Provides online, transaction-safe database backups, restoration with
-pre-restore safety copies, and SQLite integrity validation.
+WAL-safe pre-restore safety copies, and SQLite integrity validation.
 """
 
 import datetime
 import os
-import shutil
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
@@ -51,6 +50,8 @@ def create_backup(
 ) -> Path:
     """Creates a timestamped, online, transaction-safe backup of the SQLite database.
 
+    Forces a checkpoint on WAL mode to ensure all uncommitted/uncheckpointed
+    transactions are cleanly flushed before taking the backup.
     Verifies the integrity of the created backup before returning.
     """
     source_db = Path(db_path).resolve()
@@ -65,6 +66,8 @@ def create_backup(
 
     source_conn = sqlite3.connect(str(source_db))
     try:
+        # Checkpoint WAL pages into database file
+        source_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
         backup_db(source_conn, backup_file)
     finally:
         source_conn.close()
@@ -111,7 +114,9 @@ def restore_backup(
 
     Safety:
     1. Validates integrity of backup before proceeding.
-    2. Creates a safety copy of the existing target database prior to replacement.
+    2. Creates a transaction-safe pre-restore snapshot using sqlite3.backup()
+       instead of raw file copy to capture WAL state.
+    3. Restores cleanly using SQLite backup API.
     """
     backup_file = Path(backup_path).resolve()
     if not backup_file.exists():
@@ -126,15 +131,23 @@ def restore_backup(
     if target_db.exists() and create_safety_copy:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         safety_copy_path = target_db.parent / f"{target_db.stem}_pre_restore_safety_{timestamp}.db"
-        shutil.copy2(target_db, safety_copy_path)
 
-    # Use SQLite backup API to safely restore into target
+        # Capture WAL-safe snapshot via backup API
+        target_conn = sqlite3.connect(str(target_db))
+        try:
+            target_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+            backup_db(target_conn, safety_copy_path)
+        finally:
+            target_conn.close()
+
+    # Use SQLite backup API to safely restore backup into target
     target_db.parent.mkdir(parents=True, exist_ok=True)
     src_conn = sqlite3.connect(str(backup_file))
     dst_conn = sqlite3.connect(str(target_db))
     try:
         with dst_conn:
             src_conn.backup(dst_conn)
+        dst_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
     finally:
         src_conn.close()
         dst_conn.close()

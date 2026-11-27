@@ -83,7 +83,11 @@
   - [x] Export validation detecting malformed hashes, duplicates, and reporting errors
   - [x] Stale preview protection in `commit_import` checking file existence and mtime
   - [x] Verified via test suite (`tests/test_exporter.py` & `test_importer.py`, 31/31 total passed)
-- [ ] **Task 5 — Database and Backup WAL Repairs (B-01 through B-03)**
+- [x] **Task 5 — Database and Backup WAL Repairs (B-01 through B-03)**
+  - [x] WAL-checkpoint integration (`PRAGMA wal_checkpoint(TRUNCATE);`) before backups
+  - [x] Pre-restore snapshot generation using SQLite backup API instead of raw file copy
+  - [x] Integrity check verification on restore snapshots and corrupt backup rejection
+  - [x] Verified via test suite (`tests/test_backup.py`, 32/32 total passed)
 - [ ] **Task 6 — Scanner Review & Containment**
 - [ ] **Task 7 — GUI Redesign Proposal & Wireframes**
 - [ ] **Task 8 — GUI Implementation & Workflow Tests**
