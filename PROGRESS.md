@@ -1,16 +1,22 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Phase 1 Complete -> Transitioning to Phase 2 (Database Design)
-- **Active Task:** Phase 1 Format Analysis completed and documented. Ready for Phase 2.
+- **Current Phase:** Phase 2 Complete -> Ready for Phase 3 (Manifest Importer)
+- **Active Task:** Database layer implemented, verified with tests, and documented.
 
 ## Completed Work
-- Configured `.gitignore` to strictly exclude large audio files (`*.flac`, etc.) from Git tracking.
-- Inspected sample manifests: `Organized.sha256` (4,443 records) and 2 complete album manifests.
-- Determined RapidCRC exact format specs: SHA-256 (lowercase hex), UTF-8 (no BOM), CRLF line endings, binary mode delimiter ` *` (space + asterisk), Windows backslashes (`\`).
-- Discovered companion file types in manifests (`.par2`, `.cue`, `.log`, `.jpg`, `.txt`, etc.).
-- Documented analysis in `TECHNICAL_NOTES.md` and updated `ROADMAP.md`.
+- Committed Phase 0 & Phase 1 baseline to Git (`f61522d`).
+- Configured local Python 3.13 venv with `pytest`.
+- Designed and implemented SQLite database layer in `src/database.py`:
+  - Enforced foreign keys (`PRAGMA foreign_keys = ON`).
+  - Enabled WAL journal mode (`PRAGMA journal_mode = WAL`).
+  - Schema versioning (`schema_version` table).
+  - Entities: `libraries`, `albums`, `file_records` (supports classification of audio vs. companion files), `import_history`, `verification_history`, `audit_log`.
+  - Added indexes on `sha256` and `rel_path` for rapid querying.
+  - Implemented transaction-safe backup utility `backup_db`.
+- Built test suite in `tests/test_database.py` covering schema init, constraints, cascading, unique constraints, and backup/restore.
+- Verified test suite: 5/5 tests passing.
 
 ## Outstanding / Next Steps
-1. Review schema requirements for Phase 2 (Database Design).
-2. Design SQLite schema for albums, tracks, companion files/checksums, and import/verification history.
+1. Commit Phase 2 database design to Git.
+2. Begin Phase 3: Manifest Importer (parser for RapidCRC manifests, duplicate/conflict detection, and preview logic).

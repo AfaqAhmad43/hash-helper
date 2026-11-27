@@ -10,7 +10,12 @@
   - [x] Examine master checksum file
   - [x] Determine hash format, encoding, delimiters, line endings, and paths
   - [x] Document findings in TECHNICAL_NOTES.md
-- [ ] **Phase 2 — Database Design**
+- [x] **Phase 2 — Database Design**
+  - [x] Design SQLite schema with libraries, albums, file_records, import/verification history, and audit log
+  - [x] Implement database initialization and WAL mode
+  - [x] Implement schema versioning
+  - [x] Implement online transaction-safe database backup
+  - [x] Automated test suite in `tests/test_database.py` (5/5 passed)
 - [ ] **Phase 3 — Manifest Importer**
 - [ ] **Phase 4 — Incremental Album Registration**
 - [ ] **Phase 5 — Master Manifest Generation**
