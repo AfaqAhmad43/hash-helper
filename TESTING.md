@@ -29,3 +29,8 @@
     - `test_generate_master_manifest_empty`: PASSED
     - `test_generate_master_manifest_from_registered_albums`: PASSED
     - `test_manifest_export_no_silent_overwrite`: PASSED
+- **Phase 6 — Verification Engine:**
+  - `tests/test_verifier.py`: 3 passed in 0.25s (Python 3.13.7, pytest 9.2.0)
+    - `test_calculate_file_sha256`: PASSED
+    - `test_verify_files_all_statuses`: PASSED
+    - `test_verify_files_cancellation`: PASSED

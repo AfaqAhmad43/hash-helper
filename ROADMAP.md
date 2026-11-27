@@ -32,7 +32,13 @@
   - [x] Support RapidCRC compatibility (CRLF, UTF-8 without BOM, ` *` binary mode, Windows `\` separators)
   - [x] Prevent silent overwrites and validate output
   - [x] Automated test suite in `tests/test_exporter.py` (3/3 passed; 16/16 total passed)
-- [ ] **Phase 6 — Verification Engine**
+- [x] **Phase 6 — Verification Engine**
+  - [x] Chunked SHA-256 calculation (`calculate_file_sha256`)
+  - [x] Verification across library, album, and selected scopes (`verify_files`)
+  - [x] Detection of `verified`, `changed`, `missing`, and `unreadable` files
+  - [x] Progress reporting and cancellation support
+  - [x] Verification and audit history logging
+  - [x] Automated test suite in `tests/test_verifier.py` (3/3 passed; 19/19 total passed)
 - [ ] **Phase 7 — Library Scanner**
 - [ ] **Phase 8 — GUI (PySide6)**
 - [ ] **Phase 9 — Backup and Recovery**
