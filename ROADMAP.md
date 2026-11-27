@@ -22,7 +22,11 @@
   - [x] Implement import preview with duplicate & conflict detection (`preview_import`)
   - [x] Implement transactional commit with safety checks against overwriting (`commit_import`)
   - [x] Automated test suite in `tests/test_importer.py` (4/4 passed; 9/9 total passed)
-- [ ] **Phase 4 — Incremental Album Registration**
+- [x] **Phase 4 — Incremental Album Registration**
+  - [x] Implement album manifest discovery (`find_album_manifest`)
+  - [x] Implement incremental album registration preview (`preview_album_registration`)
+  - [x] Implement registration execution without rehashing existing music (`register_album`)
+  - [x] Automated test suite in `tests/test_registration.py` (4/4 passed; 13/13 total passed)
 - [ ] **Phase 5 — Master Manifest Generation**
 - [ ] **Phase 6 — Verification Engine**
 - [ ] **Phase 7 — Library Scanner**

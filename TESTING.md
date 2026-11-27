@@ -18,3 +18,9 @@
     - `test_parse_sample_album_manifest`: PASSED
     - `test_preview_and_commit_import`: PASSED
     - `test_conflict_detection_and_safety`: PASSED
+- **Phase 4 — Incremental Album Registration:**
+  - `tests/test_registration.py`: 4 passed in 0.31s (Python 3.13.7, pytest 9.2.0)
+    - `test_find_album_manifest`: PASSED
+    - `test_preview_album_registration`: PASSED
+    - `test_register_album_incremental`: PASSED
+    - `test_register_album_missing_manifest`: PASSED
