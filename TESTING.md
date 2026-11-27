@@ -34,3 +34,8 @@
     - `test_calculate_file_sha256`: PASSED
     - `test_verify_files_all_statuses`: PASSED
     - `test_verify_files_cancellation`: PASSED
+- **Phase 7 — Library Scanner:**
+  - `tests/test_scanner.py`: 3 passed in 0.32s (Python 3.13.7, pytest 9.2.0)
+    - `test_scan_library_empty`: PASSED
+    - `test_scan_library_discrepancies`: PASSED
+    - `test_scan_library_cancellation`: PASSED

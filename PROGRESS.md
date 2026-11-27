@@ -1,20 +1,19 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Phase 6 Complete -> Ready for Phase 7 (Library Scanner)
-- **Active Task:** Verification Engine implemented, tested, and documented.
+- **Current Phase:** Phase 7 Complete -> Ready for Phase 8 (GUI - PySide6)
+- **Active Task:** Library Scanner implemented, tested, and documented.
 
 ## Completed Work
-- Implemented `src/verifier.py`:
-  - `calculate_file_sha256`: chunked binary hashing (64 KB buffer) for memory efficiency.
-  - `verify_files`: verifies registered files on disk against database baseline across `library`, `album`, or `selected` scopes.
-  - Distinguishes statuses: `verified`, `changed` (checksum mismatch), `missing` (file absent on disk), `unreadable` (I/O or permission errors).
-  - Progress callback and graceful cancellation support.
-  - Zero-alteration guarantee: verification never modifies baseline checksums or repairs files.
-  - Records verification runs to `verification_history` and `audit_log`.
-- Built test suite in `tests/test_verifier.py` covering chunked hashing, all status classifications (`verified`, `changed`, `missing`), and cancellation.
-- Ran full test suite: **19/19 tests passed in 0.25s**.
+- Implemented `src/scanner.py`:
+  - `scan_library`: compares physical filesystem against registered SQLite baseline without computing hashes or altering the baseline.
+  - Identifies unregistered files (audio tracks, companion files, loose files).
+  - Identifies missing registered files (files tracked in the baseline that do not exist physically).
+  - Detects potential new album directories and checks for RapidCRC manifest availability.
+  - Progress callback and cancellation support.
+- Built test suite in `tests/test_scanner.py` (tested empty directory, discrepancy detection across all categories, and cancellation).
+- Ran full test suite: **22/22 tests passed in 0.32s**.
 
 ## Outstanding / Next Steps
-1. Commit Phase 6 to Git and push to remote.
-2. Begin Phase 7: Library Scanner (detecting unregistered files, missing registered files, and new album directories without modifying the baseline).
+1. Commit Phase 7 to Git and push to remote.
+2. Begin Phase 8: GUI (PySide6 desktop interface integrating Dashboard, Albums, Import, Verification, Export, and History).
