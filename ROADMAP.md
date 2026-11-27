@@ -63,3 +63,24 @@
   - [x] Standalone executable build verified (`dist/MusicIntegrityManager.exe`, ~49 MB)
   - [x] Offline and standalone operation tested without requiring local Python installation
   - [x] Project documentation, user guides, and test suite finalized (27/27 automated tests passing)
+
+---
+
+## Repair & Redesign Phase (Current)
+- [x] **Task 1 — Reassessment & Confirmed Defect Ledger**
+- [x] **Task 2 — Revised Verification Engine Architecture Proposal**
+- [x] **Task 3 — Verification Engine Repair (V-01 through V-07)**
+  - [x] Thread-safe worker SQLite ownership (`VerifyWorker` instantiates dedicated connection)
+  - [x] Lifecycle error handling and dedicated `error_signal`
+  - [x] Robust path resolution & strict `library_root` containment (`relative_to` checks)
+  - [x] Strict verification scope validation (`validate_scope_and_albums`)
+  - [x] Mid-file in-chunk cancellation support (`calculate_file_sha256`)
+  - [x] Mutual-exclusion status classification including `invalid_path`
+  - [x] Verified via test suite (`tests/test_verifier.py`, 29/29 total tests passed)
+- [ ] **Task 4 — Export and Import Safety Repairs (E-01 through E-04)**
+- [ ] **Task 5 — Database and Backup WAL Repairs (B-01 through B-03)**
+- [ ] **Task 6 — Scanner Review & Containment**
+- [ ] **Task 7 — GUI Redesign Proposal & Wireframes**
+- [ ] **Task 8 — GUI Implementation & Workflow Tests**
+- [ ] **Task 9 — Standalone Packaging & Validation**
+- [ ] **Task 10 — Copied-Library Final Verification**

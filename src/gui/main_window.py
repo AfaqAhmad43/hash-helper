@@ -4,7 +4,7 @@ import os
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (
@@ -36,10 +36,11 @@ from src.verifier import verify_files
 class VerifyWorker(QThread):
     progress = Signal(int, int, str)
     finished_signal = Signal(object)
+    error_signal = Signal(str)
 
-    def __init__(self, conn, library_id, scope="library", album_ids=None):
+    def __init__(self, db_path: str, library_id: int, scope: str = "library", album_ids: Optional[List[int]] = None):
         super().__init__()
-        self.conn = conn
+        self.db_path = db_path
         self.library_id = library_id
         self.scope = scope
         self.album_ids = album_ids
@@ -48,19 +49,33 @@ class VerifyWorker(QThread):
     def cancel(self):
         self._is_cancelled = True
 
-    def run(self):
-        def callback(current, total, file_path):
-            self.progress.emit(current, total, file_path)
-            return not self._is_cancelled
+    def is_cancelled(self) -> bool:
+        return self._is_cancelled
 
-        summary = verify_files(
-            self.conn,
-            self.library_id,
-            scope=self.scope,
-            album_ids=self.album_ids,
-            progress_callback=callback,
-        )
-        self.finished_signal.emit(summary)
+    def run(self):
+        worker_conn = None
+        try:
+            # Independent database connection for the worker thread
+            worker_conn = init_db(self.db_path)
+
+            def callback(current, total, file_path):
+                self.progress.emit(current, total, file_path)
+                return not self._is_cancelled
+
+            summary = verify_files(
+                conn=worker_conn,
+                library_id=self.library_id,
+                scope=self.scope,
+                album_ids=self.album_ids,
+                progress_callback=callback,
+                cancel_check=self.is_cancelled,
+            )
+            self.finished_signal.emit(summary)
+        except Exception as ex:
+            self.error_signal.emit(str(ex))
+        finally:
+            if worker_conn:
+                worker_conn.close()
 
 
 class MainWindow(QMainWindow):
@@ -359,10 +374,17 @@ class MainWindow(QMainWindow):
         self.btn_cancel_verify.setEnabled(True)
         self.lbl_verify_status.setText("Verifying files...")
 
-        self.verify_worker = VerifyWorker(self.conn, self.active_library_id, scope="library")
+        self.verify_worker = VerifyWorker(self.db_path, self.active_library_id, scope="library")
         self.verify_worker.progress.connect(self._on_verify_progress)
         self.verify_worker.finished_signal.connect(self._on_verify_finished)
+        self.verify_worker.error_signal.connect(self._on_verify_error)
         self.verify_worker.start()
+
+    def _on_verify_error(self, err_msg: str):
+        self.btn_start_verify.setEnabled(True)
+        self.btn_cancel_verify.setEnabled(False)
+        self.lbl_verify_status.setText(f"Error during verification: {err_msg}")
+        QMessageBox.critical(self, "Verification Failure", f"Verification encountered an error:\n{err_msg}")
 
     def _on_verify_progress(self, current: int, total: int, file_path: str):
         if total > 0:

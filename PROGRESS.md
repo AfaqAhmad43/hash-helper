@@ -1,16 +1,21 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Phase 10 Complete — All 10 Phases Successfully Delivered!
-- **Active Task:** Packaging and release complete. Standalone Windows executable verified.
+- **Current Phase:** Repair & Redesign — Task 3 Complete -> Ready for Task 4 (Export & Import Safety)
+- **Active Task:** Verification Engine repairs (V-01 through V-07) implemented and verified with tests.
 
-## Completed Work
-- Successfully bundled the application with PyInstaller:
-  - Generated standalone binary: `dist/MusicIntegrityManager.exe` (~49 MB).
-  - Bundled complete runtime: Python 3.13, PySide6 (Qt6 GUI engine), SQLite, and hashlib.
-  - Windowed application (`console=False`), requires no console terminal, Python installation, or internet access.
-- Confirmed full test suite health across all layers: **27/27 tests passed in 0.83s**.
-- All Phase 0–10 goals and Version 1 acceptance criteria met.
+## Completed Work in This Task
+- Resolved **V-01 (Thread Safety):** `VerifyWorker` now accepts `db_path` and establishes its own independent SQLite connection with WAL mode and foreign keys, closed deterministically in `finally`.
+- Resolved **V-02 (Worker Lifecycle):** Implemented `error_signal(str)` on `VerifyWorker` with full exception catching and GUI recovery dialogs.
+- Resolved **V-03 & V-04 (Path Containment & Traversal):** Enforced `candidate_path.relative_to(library_root)` check before reading files. Directory traversal attempts and absolute path escapes are flagged as `invalid_path`.
+- Resolved **V-05 (Scope Validation):** Implemented `validate_scope_and_albums()`. Raises `ValueError` on empty album lists or foreign library IDs.
+- Resolved **V-06 (Cancellation):** `calculate_file_sha256()` now supports mid-file chunk cancellation via `cancel_check`.
+- Resolved **V-07 (Reporting):** Added `files_invalid_path` tracking in `VerificationSummary` and `FileVerificationResult`.
+- Updated test suite: **29/29 automated tests passing in 0.98s**.
+
+## Outstanding / Next Steps
+1. Commit Task 3 repairs to Git and push to remote.
+2. Begin Task 4: Export & Import Safety Repairs (E-01 through E-04).
 
 ## Summary of All Implemented Phases
 - **Phase 0:** Workspace, Git repository, and documentation setup.

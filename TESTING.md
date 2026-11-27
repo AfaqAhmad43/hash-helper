@@ -43,8 +43,10 @@
   - `tests/test_gui.py`: 2 passed in 1.33s (Python 3.13.7, pytest 9.2.0)
     - `test_main_window_initialization`: PASSED
     - `test_main_window_dashboard_refresh`: PASSED
-- **Phase 9 — Backup and Recovery:**
-  - `tests/test_backup.py`: 3 passed in 0.83s (Python 3.13.7, pytest 9.2.0)
-    - `test_verify_database_integrity_valid_and_corrupt`: PASSED
-    - `test_create_backup_and_list`: PASSED
-    - `test_restore_backup_with_safety_copy`: PASSED
+- **Repair Phase — Task 3 (Verification Engine):**
+  - `tests/test_verifier.py`: 5 passed in 0.98s (Python 3.13.7, pytest 9.2.0)
+    - `test_calculate_file_sha256_with_cancellation`: PASSED
+    - `test_scope_validation_rules`: PASSED
+    - `test_path_containment_and_traversal_rejection`: PASSED
+    - `test_verify_files_all_statuses`: PASSED
+    - `test_verify_files_cancellation_during_hashing`: PASSED

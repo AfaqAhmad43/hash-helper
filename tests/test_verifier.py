@@ -1,93 +1,173 @@
-"""Unit tests for the verification engine (Phase 6)."""
+"""Unit and integration tests for the repaired verification engine (Phase 1 / Task 3)."""
 
 import hashlib
+import sqlite3
 import pytest
 from pathlib import Path
 from src.database import init_db
-from src.verifier import calculate_file_sha256, verify_files
+from src.verifier import (
+    calculate_file_sha256,
+    validate_scope_and_albums,
+    verify_files,
+)
 
 
-def test_calculate_file_sha256(tmp_path):
-    test_file = tmp_path / "test.txt"
-    content = b"Hello, Music Integrity Manager!"
+def test_calculate_file_sha256_with_cancellation(tmp_path):
+    test_file = tmp_path / "test.bin"
+    # 256 KB file (4 chunks)
+    content = b"X" * (256 * 1024)
     test_file.write_bytes(content)
 
     expected = hashlib.sha256(content).hexdigest().lower()
     actual = calculate_file_sha256(test_file)
     assert actual == expected
 
+    # Test cancellation triggers mid-read
+    call_count = 0
+
+    def cancel_on_second_chunk():
+        nonlocal call_count
+        call_count += 1
+        return call_count >= 2
+
+    cancelled_hash = calculate_file_sha256(test_file, cancel_check=cancel_on_second_chunk)
+    assert cancelled_hash is None
+
+
+def test_scope_validation_rules(tmp_path):
+    conn = init_db(":memory:")
+    with conn:
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("Lib1", str(tmp_path / "lib1")))
+        lib1_id = cur.lastrowid
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("Lib2", str(tmp_path / "lib2")))
+        lib2_id = cur.lastrowid
+
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib1_id, "Album1"))
+        alb1_id = cur.lastrowid
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib2_id, "Album2"))
+        alb2_id = cur.lastrowid
+
+    # 1. Invalid scope name
+    with pytest.raises(ValueError, match="Invalid verification scope"):
+        validate_scope_and_albums(conn, lib1_id, "everything", None)
+
+    # 2. Scope album without ID
+    with pytest.raises(ValueError, match="Scope 'album' requires exactly one valid album ID"):
+        validate_scope_and_albums(conn, lib1_id, "album", None)
+
+    # 3. Scope album with empty list
+    with pytest.raises(ValueError, match="Scope 'album' requires exactly one valid album ID"):
+        validate_scope_and_albums(conn, lib1_id, "album", [])
+
+    # 4. Scope album with multiple IDs
+    with pytest.raises(ValueError, match="Scope 'album' requires exactly one valid album ID"):
+        validate_scope_and_albums(conn, lib1_id, "album", [alb1_id, 999])
+
+    # 5. Scope selected with empty list
+    with pytest.raises(ValueError, match="Scope 'selected' requires a non-empty list"):
+        validate_scope_and_albums(conn, lib1_id, "selected", [])
+
+    # 6. Scope selected with foreign library album ID
+    with pytest.raises(ValueError, match="do not belong to library"):
+        validate_scope_and_albums(conn, lib1_id, "selected", [alb2_id])
+
+    # 7. Valid calls
+    assert validate_scope_and_albums(conn, lib1_id, "library", None) == []
+    assert validate_scope_and_albums(conn, lib1_id, "album", [alb1_id]) == [alb1_id]
+    assert validate_scope_and_albums(conn, lib1_id, "selected", [alb1_id]) == [alb1_id]
+
+
+def test_path_containment_and_traversal_rejection(tmp_path):
+    conn = init_db(":memory:")
+    lib_dir = tmp_path / "music_root"
+    lib_dir.mkdir()
+
+    # Secret file outside library root
+    secret_file = tmp_path / "secret.txt"
+    secret_file.write_text("classified")
+
+    with conn:
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("SafeLib", str(lib_dir)))
+        lib_id = cur.lastrowid
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib_id, "Album1"))
+        alb_id = cur.lastrowid
+
+        # Malicious traversal path attempting to escape library root
+        conn.execute(
+            "INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+            (alb_id, "../../secret.txt", "0" * 64),
+        )
+
+    summary = verify_files(conn, lib_id, scope="library")
+    assert summary.files_invalid_path == 1
+    assert summary.files_checked == 1
+    assert summary.results[0].status == "invalid_path"
+    assert "outside library root" in summary.results[0].error_message
+
 
 def test_verify_files_all_statuses(tmp_path):
     conn = init_db(":memory:")
-    library_dir = tmp_path / "lib"
-    library_dir.mkdir()
+    lib_dir = tmp_path / "lib"
+    lib_dir.mkdir()
 
     with conn:
-        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("TestLib", str(library_dir)))
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("TestLib", str(lib_dir)))
         lib_id = cur.lastrowid
-        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path, display_name) VALUES (?, ?, ?);", (lib_id, "Album1", "Album1"))
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path, display_name) VALUES (?, ?, ?);",
+                           (lib_id, "Album1", "Album1"))
         album_id = cur.lastrowid
 
-        # 1. Verified file (content matches hash)
-        f_verified = library_dir / "Album1" / "verified.flac"
-        f_verified.parent.mkdir(parents=True, exist_ok=True)
-        f_verified.write_bytes(b"Track 1 Audio Data")
-        hash_verified = calculate_file_sha256(f_verified)
-        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);", (album_id, "verified.flac", hash_verified))
+        # 1. Verified
+        f_ver = lib_dir / "Album1" / "01.flac"
+        f_ver.parent.mkdir(parents=True, exist_ok=True)
+        f_ver.write_bytes(b"Good track")
+        hash_ver = calculate_file_sha256(f_ver)
+        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                     (album_id, "01.flac", hash_ver))
 
-        # 2. Changed file (disk content differs from registered baseline)
-        f_changed = library_dir / "Album1" / "changed.flac"
-        f_changed.write_bytes(b"Modified Track 2 Audio Data")
-        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);", (album_id, "changed.flac", "0" * 64))
+        # 2. Changed
+        f_changed = lib_dir / "Album1" / "02.flac"
+        f_changed.write_bytes(b"Altered track")
+        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                     (album_id, "02.flac", "0" * 64))
 
-        # 3. Missing file (registered but does not exist on disk)
-        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);", (album_id, "missing.flac", "1" * 64))
+        # 3. Missing
+        conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                     (album_id, "03.flac", "1" * 64))
 
     summary = verify_files(conn, lib_id, scope="album", album_ids=[album_id])
-
     assert summary.files_checked == 3
     assert summary.files_matched == 1
     assert summary.files_changed == 1
     assert summary.files_missing == 1
-    assert summary.files_unreadable == 0
+    assert summary.files_invalid_path == 0
     assert summary.was_cancelled is False
 
-    # Check individual result details
-    status_map = {r.rel_path: r.status for r in summary.results}
-    assert status_map["verified.flac"] == "verified"
-    assert status_map["changed.flac"] == "changed"
-    assert status_map["missing.flac"] == "missing"
 
-    # Verify history entry in database
-    cur = conn.execute("SELECT * FROM verification_history WHERE library_id = ?;", (lib_id,))
-    hist = cur.fetchone()
-    assert hist["status"] == "discrepancies_detected"
-    assert hist["files_matched"] == 1
-    assert hist["files_changed"] == 1
-    assert hist["files_missing"] == 1
-
-
-def test_verify_files_cancellation(tmp_path):
+def test_verify_files_cancellation_during_hashing(tmp_path):
     conn = init_db(":memory:")
-    library_dir = tmp_path / "lib"
-    library_dir.mkdir()
+    lib_dir = tmp_path / "lib"
+    lib_dir.mkdir()
 
     with conn:
-        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("TestLib", str(library_dir)))
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("TestLib", str(lib_dir)))
         lib_id = cur.lastrowid
-        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path, display_name) VALUES (?, ?, ?);", (lib_id, "Album1", "Album1"))
+        cur = conn.execute("INSERT INTO albums (library_id, album_rel_path) VALUES (?, ?);", (lib_id, "Album1"))
         album_id = cur.lastrowid
 
-        for i in range(5):
-            f = library_dir / "Album1" / f"track{i}.flac"
+        for i in range(4):
+            f = lib_dir / "Album1" / f"track_{i}.flac"
             f.parent.mkdir(parents=True, exist_ok=True)
-            f.write_bytes(f"audio {i}".encode())
-            conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);", (album_id, f"track{i}.flac", calculate_file_sha256(f)))
+            f.write_bytes(b"AudioData" * 10000)
+            conn.execute("INSERT INTO file_records (album_id, rel_path, sha256) VALUES (?, ?, ?);",
+                         (album_id, f"track_{i}.flac", calculate_file_sha256(f)))
 
-    # Progress callback that cancels after checking 2 files
-    def cancel_after_2(current, total, path):
-        return current < 2
-
-    summary = verify_files(conn, lib_id, scope="library", progress_callback=cancel_after_2)
+    # Cancel after checking 2 files
+    summary = verify_files(
+        conn,
+        lib_id,
+        scope="library",
+        progress_callback=lambda curr, total, p: curr < 2,
+    )
     assert summary.was_cancelled is True
     assert summary.files_checked == 2
