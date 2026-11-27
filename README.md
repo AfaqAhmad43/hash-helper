@@ -5,19 +5,28 @@ A lightweight, offline-first Windows desktop tool for managing, maintaining, and
 ## Purpose
 Replaces tedious manual maintenance of consolidated SHA-256 manifests (previously maintained via RapidCRC) with an incremental, database-driven workflow. New albums can be registered without re-hashing previously registered music.
 
-## Features (Planned)
-- Import existing RapidCRC album checksum manifests.
-- Maintain a local SQLite baseline of registered albums and tracks.
-- Incremental album registration without full library re-hashes.
-- Instant consolidated master SHA-256 manifest generation.
-- Integrity verification (per-album, selected, or full library).
-- Library scanner for detecting unregistered and missing files.
-- Backup and restore of the integrity database.
-- Completely offline operation with standalone packaging.
+## How to Run
 
-## Technology Stack
-- **Language:** Python 3.10+
-- **GUI:** PySide6 (Phase 8)
-- **Database:** SQLite
-- **Testing:** pytest
-- **Packaging:** PyInstaller
+### Option 1: Standalone Windows Executable (No Python Required)
+Run the compiled standalone executable:
+```cmd
+dist\MusicIntegrityManager.exe
+```
+
+### Option 2: Running from Source
+1. Activate virtual environment:
+   ```cmd
+   .\venv\Scripts\activate
+   ```
+2. Install dependencies:
+   ```cmd
+   pip install -r requirements-dev.txt
+   ```
+3. Run the desktop application:
+   ```cmd
+   python main.py
+   ```
+4. Run automated test suite:
+   ```cmd
+   pytest
+   ```

@@ -29,6 +29,9 @@ MANIFEST
 
 # PyInstaller
 *.manifest
+build/
+dist/
+music_integrity_manager.spec
 
 # Environments
 venv/
