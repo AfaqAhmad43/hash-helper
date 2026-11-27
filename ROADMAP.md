@@ -52,5 +52,10 @@
   - [x] Threaded background verification worker with progress bar and cancellation
   - [x] Application launcher `main.py`
   - [x] Automated GUI integration tests in `tests/test_gui.py` (2/2 passed; 24/24 total passed)
-- [ ] **Phase 9 — Backup and Recovery**
+- [x] **Phase 9 — Backup and Recovery**
+  - [x] SQLite integrity validation (`verify_database_integrity` via `PRAGMA integrity_check`)
+  - [x] Online, transaction-safe database backup creation with automatic timestamping (`create_backup`)
+  - [x] Backup catalog listing and health inspection (`list_backups`)
+  - [x] Verified restoration with automatic pre-restore safety snapshots (`restore_backup`)
+  - [x] Automated test suite in `tests/test_backup.py` (3/3 passed; 27/27 total passed)
 - [ ] **Phase 10 — Packaging and Release**

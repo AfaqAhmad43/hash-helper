@@ -43,3 +43,8 @@
   - `tests/test_gui.py`: 2 passed in 1.33s (Python 3.13.7, pytest 9.2.0)
     - `test_main_window_initialization`: PASSED
     - `test_main_window_dashboard_refresh`: PASSED
+- **Phase 9 — Backup and Recovery:**
+  - `tests/test_backup.py`: 3 passed in 0.83s (Python 3.13.7, pytest 9.2.0)
+    - `test_verify_database_integrity_valid_and_corrupt`: PASSED
+    - `test_create_backup_and_list`: PASSED
+    - `test_restore_backup_with_safety_copy`: PASSED

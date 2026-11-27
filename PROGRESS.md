@@ -1,23 +1,18 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Phase 8 Complete -> Ready for Phase 9 (Backup and Recovery)
-- **Active Task:** PySide6 Desktop GUI implemented, integrated with backend layers, and tested.
+- **Current Phase:** Phase 9 Complete -> Ready for Phase 10 (Packaging and Release)
+- **Active Task:** Backup and Recovery module implemented, tested, and documented.
 
 ## Completed Work
-- Installed `PySide6>=6.6.0` into local virtual environment.
-- Implemented desktop application interface in `src/gui/main_window.py`:
-  - **Dashboard Tab:** Library root selector, registered album & file statistics.
-  - **Albums Tab:** Table view of registered albums, relative paths, and track counts.
-  - **Import Tab:** Manifest file selection, import preview (new, duplicate, conflict counts), transactional commit button with safety protections.
-  - **Scanner Tab:** Discrepancy reporting displaying unregistered files, missing registered files, and new album folders.
-  - **Verification Tab:** Asynchronous `VerifyWorker` thread with live progress bar, file-by-file status tracking, cancellation button, and discrepancy table.
-  - **Export Tab:** Destination selection and master manifest export.
-  - **History Tab:** Audit log and operation history table.
-- Created standalone entry point [main.py](file:///d:/Docs/Programming/rando/hash-help/main.py).
-- Created headless GUI test suite in `tests/test_gui.py` (using `QT_QPA_PLATFORM=offscreen`).
-- Ran test suite: **24/24 tests passed in 1.33s**.
+- Implemented `src/backup.py`:
+  - `verify_database_integrity`: executes SQLite `PRAGMA integrity_check;` to ensure file health.
+  - `create_backup`: transaction-safe SQLite backup with timestamped filenames and post-creation integrity validation.
+  - `list_backups`: discovers backups in directory, reporting file sizes, modification timestamps, and integrity health.
+  - `restore_backup`: restores a verified backup into the active database while creating a safety copy (`_pre_restore_safety_*.db`) of the prior database.
+- Built test suite in `tests/test_backup.py` (tested integrity checks against valid and corrupt databases, backup creation and listing, and restoration with pre-restore safety copy).
+- Ran full test suite: **27/27 tests passed in 0.83s**.
 
 ## Outstanding / Next Steps
-1. Commit Phase 8 to Git and push to remote.
-2. Begin Phase 9: Backup and Recovery (dedicated CLI/GUI backup manager, database integrity verification `PRAGMA integrity_check`, restore workflows, and recovery tests).
+1. Commit Phase 9 to Git and push to remote.
+2. Begin Phase 10: Packaging and Release (PyInstaller standalone Windows executable configuration, build specification, and release verification).
