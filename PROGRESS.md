@@ -1,17 +1,20 @@
 # Project Progress & Handoff
 
 ## Current Status
-- **Current Phase:** Repair & Redesign — Task 5 Complete -> Ready for Task 6 (Scanner Review & Containment)
-- **Active Task:** Database & Backup WAL repairs (B-01 through B-03) completed and verified.
+- **Current Phase:** Repair & Redesign — Task 6 Complete -> Ready for Task 7 (GUI Redesign Proposal)
+- **Active Task:** Scanner review and containment checks completed and verified.
 
 ## Completed Work in This Task
-- Resolved **B-01 & B-02 (WAL-Safe Backup & Pre-Restore Snapshot):** Replaced `shutil.copy2` with `PRAGMA wal_checkpoint(TRUNCATE);` followed by `backup_db()` in `create_backup()` and `restore_backup()`. Pre-restore safety copies now capture the full active database state without missing uncheckpointed WAL transactions.
-- Resolved **B-03 (Corrupt Backup Rejection):** Validated that corrupt or unreadable backups fail `verify_database_integrity()` and are rejected before altering the target database.
-- Updated test suite: **32/32 automated tests passing in 0.87s**.
+- Refactored `scan_library()` in `src/scanner.py`:
+  - Enforced strict `file_disk_path.relative_to(library_root)` containment checks during filesystem enumeration to prevent symlink traversal outside configured library roots.
+  - Aligned relative path normalization using `Path.parts` component hierarchy matching the verifier and exporter.
+  - Validated library root directory existence, raising `FileNotFoundError` explicitly if missing.
+  - Added `invalid_paths_skipped` reporting to `ScanReport`.
+- Updated test suite: **33/33 automated tests passing in 1.05s**.
 
 ## Outstanding / Next Steps
-1. Commit Task 5 repairs to Git and push to remote.
-2. Begin Task 6: Scanner Review & Containment (verifying path resolution and containment inside `scan_library()`).
+1. Commit Task 6 repairs to Git and push to remote.
+2. Begin Task 7: GUI Redesign Proposal & Wireframes (proposing cohesive desktop architecture, navigation, and workflows for approval before implementation).
 
 ## Summary of All Implemented Phases
 - **Phase 0:** Workspace, Git repository, and documentation setup.

@@ -88,7 +88,11 @@
   - [x] Pre-restore snapshot generation using SQLite backup API instead of raw file copy
   - [x] Integrity check verification on restore snapshots and corrupt backup rejection
   - [x] Verified via test suite (`tests/test_backup.py`, 32/32 total passed)
-- [ ] **Task 6 — Scanner Review & Containment**
+- [x] **Task 6 — Scanner Review & Containment**
+  - [x] Strict filesystem path containment via `Path.relative_to(library_root)`
+  - [x] Path matching aligned with verifier canonical components
+  - [x] Non-existent library root check with explicit `FileNotFoundError`
+  - [x] Verified via test suite (`tests/test_scanner.py`, 33/33 total passed)
 - [ ] **Task 7 — GUI Redesign Proposal & Wireframes**
 - [ ] **Task 8 — GUI Implementation & Workflow Tests**
 - [ ] **Task 9 — Standalone Packaging & Validation**

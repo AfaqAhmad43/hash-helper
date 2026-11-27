@@ -43,9 +43,9 @@
   - `tests/test_gui.py`: 2 passed in 1.33s (Python 3.13.7, pytest 9.2.0)
     - `test_main_window_initialization`: PASSED
     - `test_main_window_dashboard_refresh`: PASSED
-- **Repair Phase — Task 5 (Database & Backup WAL Repairs):**
-  - `tests/test_backup.py`: 4 passed in 0.87s (Python 3.13.7, pytest 9.2.0)
-    - `test_verify_database_integrity_valid_and_corrupt`: PASSED
-    - `test_create_backup_with_wal_checkpoint`: PASSED
-    - `test_restore_backup_with_wal_safety_copy`: PASSED
-    - `test_restore_rejects_corrupted_backup`: PASSED
+- **Repair Phase — Task 6 (Scanner Containment):**
+  - `tests/test_scanner.py`: 4 passed in 1.05s (Python 3.13.7, pytest 9.2.0)
+    - `test_scan_library_empty`: PASSED
+    - `test_scan_library_discrepancies`: PASSED
+    - `test_scan_library_nonexistent_root_raises`: PASSED
+    - `test_scan_library_cancellation`: PASSED

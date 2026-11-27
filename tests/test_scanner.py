@@ -1,4 +1,4 @@
-"""Unit tests for the physical library scanner (Phase 7)."""
+"""Unit tests for the physical library scanner (Phase 7 & Task 6)."""
 
 import pytest
 from pathlib import Path
@@ -21,6 +21,7 @@ def test_scan_library_empty(tmp_path):
     assert len(report.unregistered_files) == 0
     assert len(report.missing_registered_files) == 0
     assert len(report.potential_new_albums) == 0
+    assert report.invalid_paths_skipped == 0
     assert report.was_cancelled is False
 
 
@@ -76,6 +77,17 @@ def test_scan_library_discrepancies(tmp_path):
     assert pot.audio_files_count == 2
     assert pot.companion_files_count == 2
     assert pot.manifest_found == "NewAlbum.sha256"
+
+
+def test_scan_library_nonexistent_root_raises(tmp_path):
+    conn = init_db(":memory:")
+    fake_path = tmp_path / "does_not_exist"
+    with conn:
+        cur = conn.execute("INSERT INTO libraries (name, root_path) VALUES (?, ?);", ("Fake", str(fake_path)))
+        lib_id = cur.lastrowid
+
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        scan_library(conn, lib_id)
 
 
 def test_scan_library_cancellation(tmp_path):
